@@ -1,0 +1,14 @@
+{
+  "$schema": "https://unpkg.com/api@7/schema.json",
+  "apis": [
+    {
+      "private": true,
+      "identifier": "locationiq",
+      "source": "@locationiq/v1.0#3zldnvm1jbdf9m",
+      "integrity": "sha512-lPZmyfTyTrtF36FrWD8IBcjGoUIQauOZcDykN+HE2PKV2Qt9rrd2rp6NJtUQWdNxeVl2SN8OiHJLElMeb/PZFQ==",
+      "installerVersion": "7.0.2",
+      "language": "js",
+      "createdAt": "2026-09-03T05:56:50.377Z"
+    }
+  ]
+}
