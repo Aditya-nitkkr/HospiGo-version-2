@@ -1,6 +1,5 @@
 ﻿// services/externalLocationApi.js
 // import axios from "axios";
-// import 'dotenv/config';
 const axios = require("axios");
 
 const fetchHospitalsNearby = async (lat, lon, radius = 10000) => {
@@ -23,4 +22,26 @@ const fetchHospitalsNearby = async (lat, lon, radius = 10000) => {
   return res.data;
 };
 
-module.exports = { fetchHospitalsNearby };
+const autocompleteLocation = async (query) => {
+  const options = {
+    method: "GET",
+    url: "https://api.locationiq.com/v1/autocomplete",
+    params: {
+      q: query,
+      limit: 5,
+      key: process.env.LOCATIONIQ_KEY,
+      format: "json",
+    },
+    headers: { accept: "application/json" },
+  };
+
+  // console.log(process.env.LOCATIONIQ_KEY);
+  const res = await axios.request(options);
+  
+
+  // console.log(typeof res.data);
+  // console.log(res.data);
+
+  return res.data;
+};
+module.exports = { fetchHospitalsNearby, autocompleteLocation };

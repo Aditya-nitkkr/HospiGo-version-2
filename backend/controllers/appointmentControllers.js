@@ -5,17 +5,49 @@ const DailySlotStatus = require("../models/dailySlotStatusSchema");
 // Function to make the appointment
 const handleSaveAppointment = async (req, res) => {
   // console.log(req);
-  const { appointmentDate, doctorId, hospitalId, selectSlot } = req.body;
+  const { appointmentDate, doctorId, hospitalId, selectSlot, mobile } =
+    req.body;
   // console.log("req body", req.body);
 
   try {
-    // Step 1: Try to reserve capacity FIRST — this is the real source of truth,
+    const existingActive = await Appointment.findOne({
+      doctorId,
+      appointmentDate,
+      mobile,
+      status: { $in: ["Pending", "Accepted"] },
+    });
+
+    if (existingActive) {
+      return res.status(409).json({
+        message:
+          "You already have an active appointment with this doctor on this date",
+      });
+    }
+    //  Try to reserve capacity FIRST — this is the real source of truth,
     // not a duplicate-check on the Appointment collection.
+    // it only check the capacity of the slot
     await bookSlot(doctorId, hospitalId, appointmentDate, selectSlot);
 
-    // Step 2: Only if capacity was successfully reserved, create the appointment record
-    const newAppointment = new Appointment(req.body);
-    await newAppointment.save();
+    // handling the rollback by the same patient
+    try {
+      //  Only if capacity was successfully reserved, create the appointment record
+      const newAppointment = new Appointment(req.body);
+      await newAppointment.save();
+    } catch (saveError) {
+      // {11000} mongoDb duplicate key error
+      if (saveError === 11000) {
+        // then rollback the book slot so that the slot is not wasted
+        await DailySlotStatus.findOneAndUpdate(
+          { doctorId, date: appointmentDate, time: selectSlot },
+          { $inc: { bookedCount: -1 } },
+        );
+
+        return res.status(409).json({
+          message:
+            "You already have an active appointment with this doctor on this date",
+        });
+      }
+    }
 
     return res
       .status(201)
