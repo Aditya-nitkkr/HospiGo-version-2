@@ -31,6 +31,7 @@ const router = createBrowserRouter([
         element: <Login />,
       },
 
+
     ]
   },
 
@@ -51,10 +52,6 @@ const router = createBrowserRouter([
     element: <HospitalRoute />,
     errorElement: <Navigate to="/" />,
     children: [
-      {
-        path: "/nearHospital",
-        element: <NearbyHospitals />
-      },
       {
         path: "/hospital/:id",
         element: <HospitalDetails />
@@ -82,6 +79,10 @@ const router = createBrowserRouter([
       {
         path: "/contact",
         element: <Contact />
+      },
+      {
+        path: "/nearHospital",
+        element: <NearbyHospitals />
       },
 
     ],
