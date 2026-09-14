@@ -1,4 +1,5 @@
-﻿const DoctorSlotTemplate = require("../models/doctorSlotTemplateSchema");
+﻿const DailySlotStatus = require("../models/dailySlotStatusSchema");
+const DoctorSlotTemplate = require("../models/doctorSlotTemplateSchema");
 
 const bookSlot = async (doctorId, hospitalId, date, time) => {
   try {
@@ -20,7 +21,7 @@ const bookSlot = async (doctorId, hospitalId, date, time) => {
 
     // STEP 2: Look up what the doctor's DEFAULT capacity is for this time,
     // from the template — needed in case no admin override exists.
-    
+
     const template = await DoctorSlotTemplate.findOne({ doctorId });
     const slotTemplate = template.timeSlots.find((s) => s.time === time);
 
@@ -44,6 +45,7 @@ const bookSlot = async (doctorId, hospitalId, date, time) => {
       { new: true },
     );
 
+    // console.log("updated ", updated);
     if (!updated) {
       throw new Error("Slot is full, blocked, or unavailable");
     }

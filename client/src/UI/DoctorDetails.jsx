@@ -19,14 +19,14 @@ export const DoctorDetails = ({ doctor,hospital }) => {
     return (
         <div className="doctor-section container">
             <div div className="doctor-image-container" >
-                <img className="doctor-image" src={doctor.photo} alt="" />
+                {/* <img className="doctor-image" src={doctor.photo} alt="" /> */}
             </div >
             <div className="doctor-details">
                 <p className="doctor-name">{doctor.name}</p>
-                <p className="doctor-specialization">Specialization : {doctor.specialization}</p>
-                <p className="doctor-opd">OPD time : {doctor.opdTime}</p>
-                <p className="doctor-mail"> Email : {doctor.email}</p>
-                <p className="doctor-contact">Mobile Number : {doctor.phone}</p>
+                <p className="doctor-specialization">Specialization : {doctor.specialty}</p>
+                {/* <p className="doctor-opd">OPD time : {doctor.opdTime}</p> */}
+                {/* <p className="doctor-mail"> Email : {doctor.email}</p> */}
+                {/* <p className="doctor-contact">Mobile Number : {doctor.phone}</p> */}
                 <button className="appointment-btn" onClick={isAuthenticated ? openModal : redirectToLogin}>Book an Appointment</button>
                 {
                     isAuthenticated && showModal && <AppointmentModal closeModal={closeModal} doctor={doctor} hospital={hospital} />

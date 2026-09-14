@@ -15,7 +15,7 @@ export const ShowAppointment = ({ patient }) => {
         try {
             await axios.put(`${backendUrl}/api/appointments/admin/update-status/${patient._id}`, {
                 status: "Accepted"
-            });
+            }, { withCredentials: true });
             setStatusUpdated("Accepted");
         } catch (error) {
             console.error("Failed to update status:", error);
@@ -26,7 +26,7 @@ export const ShowAppointment = ({ patient }) => {
         try {
             await axios.put(`${backendUrl}/api/appointments/admin/update-status/${patient._id}`, {
                 status: "Rejected"
-            });
+            }, { withCredentials: true });
             setStatusUpdated("Rejected");
         } catch (error) {
             console.error("Failed to update status:", error);
@@ -37,7 +37,7 @@ export const ShowAppointment = ({ patient }) => {
         try {
             await axios.put(`${backendUrl}/api/appointments/admin/update-status/${patient._id}`, {
                 status: "Pending"
-            });
+            }, { withCredentials: true });
             setStatusUpdated("Pending");
         } catch (error) {
             console.error("Failed to revert status:", error);

@@ -43,6 +43,7 @@ export const SignUp = () => {
             });
             // console.log(res);
             const userLoggedIn = res.data.user;
+            console.log("UserLogged In: ", userLoggedIn);
             setUserRegistered(userLoggedIn);
 
             login();

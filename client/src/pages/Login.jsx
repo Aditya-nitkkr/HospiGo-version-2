@@ -94,7 +94,7 @@ export const Login = () => {
                             <label htmlFor="name">Email</label>
                             <input type="text"
                                 id="name"
-                                name="email" placeholder="Enter your Username" autoComplete="off" required value={userLogin.email} onChange={handleInput} />
+                                name="email" placeholder="Enter your Email" autoComplete="off" required value={userLogin.email} onChange={handleInput} />
                         </div>
                         <div className="password">
                             <label htmlFor="password">Password</label>

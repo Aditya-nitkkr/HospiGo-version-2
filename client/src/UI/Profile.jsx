@@ -6,9 +6,12 @@ import "./profile.css";
 
 export const Profile = () => {
     const { loading, userRegister, hospitalAppointments, userAppointment } = useAuth();
-
+    
+    console.log("hospitalAppointments: ", typeof hospitalAppointments);
+    // console.log("user Appointments: ", userAppointment);
+    
     if (loading || !userRegister) {
-        return <div className="profile-main"><p>Loading profile...</p></div>; 
+        return <div className="profile-main"><p>Loading profile...</p></div>;
     }
 
     return (
@@ -30,26 +33,43 @@ export const Profile = () => {
                             Edit Profile
                         </button>
                     </div>
-                    {userRegister.role === "admin" && <ul>
-                        {
-                            Object.entries(hospitalAppointments).map(([key, appointment]) => (
-                                <ShowAppointment className="profile-appointment" key={key} patient={appointment} />
-                            ))
-                        }
-                    </ul>
-                    }
-                    {
-                        userRegister.role === "patient" &&
-                        //patient's appointment
+                    
+                    {/* Admin Appointments */}
+                    {userRegister.role === "admin" && (
                         <ul>
-                            {
-                                Object.entries(userAppointment).map(([key, appointment]) => (
-                                    <UserAppointment className="profile-appointment" key={key} patientAppointment={appointment} />
+                            {/* Make sure to add a safety check here too! */}
+                            {hospitalAppointments && hospitalAppointments.length > 0 ? (
+                                hospitalAppointments.map((appointment) => (
+                                    <ShowAppointment 
+                                        className="profile-appointment" 
+                                        key={appointment._id} 
+                                        patient={appointment} 
+                                    />
                                 ))
-                            }
-
+                            ) : (
+                                <p>No hospital appointments found.</p>
+                            )}
                         </ul>
-                    }
+                    )}
+                    
+                    {/* Patient Appointments */}
+                    {userRegister.role === "patient" && (
+                        <ul>
+                            {/* 1. Check if userAppointment exists (not null) */}
+                            {/* 2. Map through the array directly */}
+                            {userAppointment && userAppointment.length > 0 ? (
+                                userAppointment.map((appointment) => (
+                                    <UserAppointment 
+                                        className="profile-appointment" 
+                                        key={appointment._id} // Use the actual DB ID as the key
+                                        patientAppointment={appointment} 
+                                    />
+                                ))
+                            ) : (
+                                <p>No appointments found.</p>
+                            )}
+                        </ul>
+                    )}
                 </div>
             </div>
         </>

@@ -1,6 +1,8 @@
 const Appointment = require("../models/appointmentSchema");
 const { bookSlot } = require("../services/bookingService");
 const DailySlotStatus = require("../models/dailySlotStatusSchema");
+const User = require("../models/userSchema");
+const Hospital = require("../models/hospitalData");
 
 // Function to make the appointment
 const handleSaveAppointment = async (req, res) => {
@@ -8,6 +10,7 @@ const handleSaveAppointment = async (req, res) => {
   const { appointmentDate, doctorId, hospitalId, selectSlot, mobile } =
     req.body;
   // console.log("req body", req.body);
+  // console.log(appointmentDate, doctorId, hospitalId, selectSlot, mobile);
 
   try {
     const existingActive = await Appointment.findOne({
@@ -32,6 +35,7 @@ const handleSaveAppointment = async (req, res) => {
     try {
       //  Only if capacity was successfully reserved, create the appointment record
       const newAppointment = new Appointment(req.body);
+      // console.log("new appointment:  ", newAppointment);
       await newAppointment.save();
     } catch (saveError) {
       // {11000} mongoDb duplicate key error
@@ -64,11 +68,14 @@ const handleSaveAppointment = async (req, res) => {
 
 // Function to fetch all the appointments for the particular hospital
 const handleFetchAppointments = async (req, res) => {
-  const { hospitalId } = req.user;
-  // console.log(email);
+  const { id } = req.user;
+  // console.log("req user: ", req.user);
+  // console.log("hosital id:  in appointments: ", id);
 
   try {
-    const appointments = await Appointment.find({ hospitalId });
+    const appointments = await Appointment.find({ hospitalId: id });
+    // console.log("appointments  of hospital: ", appointments);
+
     if (!appointments || appointments.length === 0) {
       return res.status(404).json({ message: "No appointments found" });
     }
@@ -88,17 +95,23 @@ const handleFetchAppointments = async (req, res) => {
 // admin
 
 const handleAppointmentStatus = async (req, res) => {
+  console.log(req.user);
   const { status } = req.body;
-  const { hospitalId } = req.user; // the logged-in admin's own hospital
+  const { id } = req.user; // the logged-in admin's own hospital
+  console.log("id: ", id);
+  const { status_id } = req.params;
 
   try {
-    const appointment = await Appointment.findById(req.params.status_id);
+    const appointment = await Appointment.findById(status_id);
     if (!appointment) {
       return res.status(404).json({ message: "Appointment not found" });
     }
 
     // Ownership check — prevents one hospital admin editing another hospital's appointment
-    if (appointment.hospitalId.toString() !== hospitalId.toString()) {
+    console.log(appointment.hospitalId.toString());
+    console.log(id.toString());
+
+    if (appointment.hospitalId.toString() !== id.toString()) {
       return res
         .status(403)
         .json({ message: "Not authorized to update this appointment" });
@@ -124,8 +137,21 @@ const handleAppointmentStatus = async (req, res) => {
     res.status(500).json({ error: "Failed to update status" });
   }
 };
+
+const getHospitalEmail = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const hospital = await Hospital.findById(id);
+    return res.status(200).json(hospital.hospitalId);
+  } catch (error) {
+    console.log("error in fetching the hospital mail: ", error);
+    return res.status(404);
+  }
+};
+
 module.exports = {
   handleSaveAppointment,
   handleFetchAppointments,
   handleAppointmentStatus,
+  getHospitalEmail,
 };

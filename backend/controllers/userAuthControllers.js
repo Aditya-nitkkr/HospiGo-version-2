@@ -13,8 +13,10 @@ const frontend_url = process.env.FRONTEND_URL;
 
 const handleUserSignup = async (req, res) => {
   const { username, email, password } = req.body;
+
   try {
     const user = await User.findOne({ email });
+    // console.log("User : ", user);
 
     if (user) {
       return res.status(400).json({ message: "User already registered" });
@@ -22,19 +24,19 @@ const handleUserSignup = async (req, res) => {
 
     //? check if the user is admin or not
 
-    const hospitalPath = path.join(
-      __dirname,
-      "../hospital_data/rewari_hospitals_10.json",
-    );
+    // const hospitalPath = path.join(
+    //   __dirname,
+    //   "../hospital_data/rewari_hospitals_10.json",
+    // );
 
-    // console.log(hospitalPath);
-    const hospitalData = JSON.parse(fs.readFileSync(hospitalPath));
-    const isHospital = hospitalData.some((h) => h.email === email);
+    // // console.log(hospitalPath);
+    // const hospitalData = JSON.parse(fs.readFileSync(hospitalPath));
+    // const isHospital = hospitalData.some((h) => h.email === email);
 
-    // console.log(isHospital);
-    // console.log(hospitalData);
+    // // console.log(isHospital);
+    // // console.log(hospitalData);
 
-    const assignRole = isHospital ? "admin" : "patient";
+    const assignRole = "patient";
 
     const hashedPassword = await handleHashPassword(password);
 
@@ -44,11 +46,12 @@ const handleUserSignup = async (req, res) => {
       password: hashedPassword,
       role: assignRole,
     });
+    // console.log("New Users: ", newUser);
 
     const token = generateToken(newUser);
     // console.log(token);
 
-    res
+    return res
       .cookie("LoggedInToken", token, {
         httpOnly: true,
         secure: true,
@@ -101,7 +104,7 @@ const handleUserLogin = async (req, res) => {
     const token = generateToken(user);
     // console.log(token);
 
-    res
+    return res
       .cookie("LoggedInToken", token, {
         httpOnly: true,
         secure: true,
@@ -153,7 +156,7 @@ const handleAuth = (req, res) => {
 const handleGoogleSetCookie = (req, res) => {
   if (!req.user)
     return res.redirect(`${frontend_url}/login?error=missing-user`);
-  
+
   const token = generateToken(req.user);
 
   res.cookie("LoggedInToken", token, {
@@ -166,7 +169,7 @@ const handleGoogleSetCookie = (req, res) => {
     return res.status(500).send("frontend_url not set");
   }
 
-  res.redirect(`${frontend_url}/oauth-google`);
+  return res.redirect(`${frontend_url}/oauth-google`);
 };
 
 module.exports = {

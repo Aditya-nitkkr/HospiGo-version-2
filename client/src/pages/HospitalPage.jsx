@@ -1,16 +1,19 @@
 import { useNavigate } from "react-router-dom";
+import { getHospitalImage } from "../assets/getHospitalImage";
 
 export const Hospital = ({ currHospital }) => {
 
     const navigate = useNavigate();
     const handleHospitalDetails = () => {
-        navigate(`/hospital/${currHospital.id}`);
+        navigate(`/hospital/${currHospital._id}`, {
+            state: { fromSearch: true, hospitalId: currHospital._id },
+        });
 
     }
-    
+
     return (
         <li className="hospital-main">
-            <img src={currHospital.image} alt="" width="40%" height="50%" className="nearby-hospital-image" />
+            <img src={getHospitalImage(currHospital._id)} alt="" width="40%" height="50%" className="nearby-hospital-image" />
             <section className="hospital-card-right">
                 <div className="hospital-top-name">
                     <h1>{currHospital.name}</h1>

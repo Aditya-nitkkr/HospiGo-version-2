@@ -16,7 +16,7 @@ const getNearbyHospitals = async (lat, lng, radiusMeters = 10000) => {
   });
 
   if (existing.length >= MIN_RESULTS_THRESHOLD) {
-    console.log("catch request");
+    // console.log("catch request");
     return existing; // cache hit — no external call needed
   }
 
@@ -44,7 +44,11 @@ const getNearbyHospitals = async (lat, lng, radiusMeters = 10000) => {
 
     // 4. Only generate fake doctors/admin the FIRST time this hospital appears
     if (!hospital.isSeeded) {
-      await generateFakeDoctorsAndAdmin(hospital._id, hospital.name);
+      const { adminUserId } = await generateFakeDoctorsAndAdmin(
+        hospital._id,
+        hospital.name,
+      );
+      hospital.hospitalId = adminUserId;
       hospital.isSeeded = true;
       await hospital.save();
     }

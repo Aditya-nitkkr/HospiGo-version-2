@@ -1,7 +1,8 @@
 ﻿const Doctor = require("../models/doctorSchema");
 const DoctorSlotTemplate = require("../models/doctorSlotTemplateSchema");
-const HospitalAdmin = require("../models/hospitalAdmin");
+// const HospitalAdmin = require("../models/hospitalAdmin");
 const { handleHashPassword } = require("../controllers/bcryptAuth");
+const User = require("../models/userSchema");
 
 const SPECIALTIES = [
   "Cardiology",
@@ -54,15 +55,19 @@ const generateFakeDoctorsAndAdmin = async (hospitalId, hospitalName) => {
   const hashedPassword = await handleHashPassword(defaultPassword);
 
   // creating the hospital admin at the time of hospital creation
-  await HospitalAdmin.create({
-    hospitalId,
+  const newAdminUser = await User.create({
+    // hospitalId,
+    username: `${slugify(hospitalName)}`,
     email: `${slugify(hospitalName)}@demo.com`,
     password: hashedPassword,
+    role: "admin",
+    hospitalId: hospitalId,
   });
 
-  console.log(
-    ` Seeded ${doctors.length} doctors,  and admin login for "${hospitalName}"`,
-  );
+  // console.log(
+  //   ` Seeded ${doctors.length} doctors,  and admin login for "${hospitalName}"`,
+  // );
+  return { adminUserId: newAdminUser._id };
 };
 
 module.exports = {

@@ -38,7 +38,8 @@ const router = createBrowserRouter([
   //Private Route ->accessible only to the authorized user
   {
     element: <PrivateRoute />,
-    errorElement: <Navigate to="/" />,
+    // errorElement: <Navigate to="/" />,
+    errorElement: <ErrorPage />,
     children: [
       {
         path: "/profile",
@@ -50,7 +51,7 @@ const router = createBrowserRouter([
   },
   {
     element: <HospitalRoute />,
-    errorElement: <Navigate to="/" />,
+    errorElement: <ErrorPage />,
     children: [
       {
         path: "/hospital/:id",

@@ -8,8 +8,6 @@ import { toast } from "react-toastify";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-
-
 export const AppointmentModal = ({ closeModal, doctor, hospital }) => {
     const [selectedSlot, setSelectedSlot] = useState(null);
     const { userRegister } = useAuth();
@@ -28,10 +26,27 @@ export const AppointmentModal = ({ closeModal, doctor, hospital }) => {
         dateOfBirth: "",
         selectSlot: "Not selected",
         reason: "",
-        hospitalId: `${hospital.id}`,
-        doctorId: `${doctor.id}`,
-        hospitalEmail: `${hospital.email}`
+        hospitalId: "",
+        doctorId: `${doctor._id}`,
     });
+
+    useEffect(() => {
+
+        const fetchHospitalId = async () => {
+
+            const res = await axios.get(`${backendUrl}/api/appointments/hospital/${hospital._id}`);
+            // console.log("hospital : ", res);
+
+            const hopsitalId = res.data;
+            setPrintData((prev) => ({
+                ...prev,
+                hospitalId: hopsitalId,
+            }));
+        }
+        fetchHospitalId();
+    }, [hospital]);
+
+
 
 
 
@@ -41,6 +56,9 @@ export const AppointmentModal = ({ closeModal, doctor, hospital }) => {
             document.body.style.overflowY = "scroll";
         };
     }, []);
+
+
+
 
     const handleInput = (event) => {
         const { name, value } = event.target;
@@ -62,7 +80,7 @@ export const AppointmentModal = ({ closeModal, doctor, hospital }) => {
         try {
             const res = await axios.post(`${backendUrl}/api/appointments/create`, printData, { withCredentials: true })
             // console.log(res.data.message);
-            if (res.status === 200) {
+            if (res.status === 201) {
                 toast.success(res.data.message, {
                     position: "top-center",
                     autoClose: 5000,
@@ -89,9 +107,9 @@ export const AppointmentModal = ({ closeModal, doctor, hospital }) => {
                     dateOfBirth: "",
                     selectSlot: "Not selected",
                     reason: "",
-                    hospitalId: `${hospital.id}`,
-                    doctorId: `${doctor.id}`,
-                    hospitalEmail: `${hospital.email}`
+                    hospitalId: "",
+                    doctorId: `${doctor._id}`,
+                    // hospitalEmail: `${hospital.email}`
                 })
             }
 
@@ -179,12 +197,13 @@ export const AppointmentModal = ({ closeModal, doctor, hospital }) => {
                             <div className="slot-chips">
                                 {doctor.slots.map((slot) => (
                                     <button
-                                        key={slot}
+                                        key={slot.time}
                                         type="button"
-                                        className={`slot-chip${selectedSlot === slot ? "-selected" : ""}`}
-                                        onClick={() => handleSelectedSlot(slot)}
+                                        className={`slot-chip${selectedSlot === slot.time ? "-selected" : ""}`}
+                                        onClick={() => handleSelectedSlot(slot.time)}
                                     >
-                                        {slot}
+                                        {slot.time}
+                                        {/* {slot.capacity} */}
                                     </button>
                                 ))}
                             </div>
