@@ -1,6 +1,6 @@
 
-import "./home.css";
-import "../App.css";
+// import "./home.css";
+// import "../App.css";
 import { HeroSection } from "../components/HeroSection";
 import { WhyChooseSection } from "../components/WhyChooseSection";
 import { HowItWorksSection } from "../components/HowItWorksSection";

@@ -1,18 +1,12 @@
-
 import { useState } from "react";
-import { ImEye } from "react-icons/im";
-import { ImEyeBlocked } from "react-icons/im";
+import { ImEye, ImEyeBlocked } from "react-icons/im";
 import { FcGoogle } from "react-icons/fc";
-import { FaApple } from "react-icons/fa";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { toast } from 'react-toastify';
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
-
 
 export const SignUp = () => {
     const [showPassWord1, setShowPassword1] = useState(false);
@@ -23,27 +17,23 @@ export const SignUp = () => {
         email: "",
         password: "",
         confirmPassword: "",
-    })
+    });
     const navigate = useNavigate();
 
     const handleOnSubmit = async (event) => {
         event.preventDefault();
 
-        //validate the password and confirm password
+        // Validate the password and confirm password
         if (user.password !== user.confirmPassword) {
             toast.warn("Password is not Matching!");
             return;
         }
 
-        //  sent the user credential to the database
-        // console.log(user);
         try {
             const res = await axios.post(`${backendUrl}/api/auth/signup`, user, {
                 withCredentials: true,
             });
-            // console.log(res);
             const userLoggedIn = res.data.user;
-            console.log("UserLogged In: ", userLoggedIn);
             setUserRegistered(userLoggedIn);
 
             login();
@@ -59,111 +49,171 @@ export const SignUp = () => {
                 theme: "light",
             });
 
-            // reset the input field
+            // Reset the input fields
             setUser({
-                username: "", email: "",
+                username: "",
+                email: "",
                 password: "",
                 confirmPassword: "",
-            })
+            });
 
         } catch (err) {
-            // console.log(err);
-
             console.log(err.response);
-            if (err.response.status == 400) {
+            if (err.response?.status === 400) {
                 login();
                 navigate("/");
-            }
-            else {
-                toast.warn(err.response.data.extraDetails || "Signup failed",
-                    {
-                        position: "top-right",
-                        autoClose: 5000,
-                        hideProgressBar: false,
-                        closeOnClick: false,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                        theme: "light",
-
-                    });
+            } else {
+                toast.warn(err.response?.data?.extraDetails || "Signup failed", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                });
             }
         }
-
-
-    }
+    };
 
     const handleInput = (event) => {
-        const name = event.target.name;
-        const value = event.target.value;
+        const { name, value } = event.target;
         setUser({
             ...user,
             [name]: value,
-        })
+        });
+    };
 
-    }
     return (
-        <section className="signup-section">
-            <div className="signup">
-                <div className="container signup-div">
-                    <form onSubmit={handleOnSubmit}>
-                        <h1>Create an Account</h1>
-                        <p className="sigin-text">Join now to streamline your experience from day one.</p>
-                        <div className="username">
-                            <label htmlFor="username">Username</label>
-                            <input type="text"
-                                id="username"
-                                name="username" placeholder="Enter your Username" autoComplete="off" value={user.username} onChange={handleInput} required />
-                        </div>
-                        <div className="email">
-                            <label htmlFor="email">Email</label>
-                            <input type="email" name="email"
-                                id="email"
-                                placeholder="Enter your Email" autoComplete="off" value={user.email} onChange={handleInput} required />
+        <section className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl space-y-6">
 
-                        </div>
-                        <div className="password">
-                            <label htmlFor="password"> Set Password</label>
-                            <input type={showPassWord1 ? "text" : "password"} placeholder="Enter your Password" name="password" autoComplete="off" value={user.password} onChange={handleInput} required />
-                            <span className="open-btn" onClick={() => setShowPassword1(!showPassWord1)}>
-                                {showPassWord1 ? <ImEye /> : <ImEyeBlocked />}
-                            </span>
-                        </div>
-
-                        <div className="confirmPassword">
-                            <label htmlFor="confirm password">Confirm Password</label>
-                            <input type={showPassWord2 ? "text" : "password"} name="confirmPassword"
-                                id="password" placeholder="Confirm your Password" autoComplete="off" value={user.confirmPassword} onChange={handleInput} required />
-                            <span className="open-btn" onClick={() => setShowPassword2(!showPassWord2)}>
-                                {showPassWord2 ? <ImEye /> : <ImEyeBlocked />}
-                            </span>
-                        </div>
-                        <button type="submit" className="submit-btn">
-                            Register
-                        </button>
-
-                        <div className="auto-authentication">
-                            <button
-                                className="google"
-                                type="button"
-                                onClick={() => {
-                                    window.location.href = `${backendUrl}/api/auth/google`;
-                                }}
-                            >
-                                <FcGoogle className="google-icon" /> <span>Sign Up With Google</span>
-                            </button>
-
-                        </div>
-                        <div className="have-account">
-                            <p>Already have an account?</p>
-                            <NavLink to="/login">Log in</NavLink>
-
-                        </div>
-                    </form>
+                <div className="text-center">
+                    <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+                        Create an Account
+                    </h1>
+                    <p className="mt-2 text-sm text-gray-500">
+                        Join now to streamline your experience from day one.
+                    </p>
                 </div>
 
-            </div>
+                <form onSubmit={handleOnSubmit} className="space-y-5">
+                    <div>
+                        <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                            Username
+                        </label>
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            placeholder="Enter your Username"
+                            autoComplete="off"
+                            value={user.username}
+                            onChange={handleInput}
+                            required
+                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm outline-none transition-colors"
+                        />
+                    </div>
 
+                    <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                            Email
+                        </label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Enter your Email"
+                            autoComplete="off"
+                            value={user.email}
+                            onChange={handleInput}
+                            required
+                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm outline-none transition-colors"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                            Set Password
+                        </label>
+                        <div className="relative mt-1">
+                            <input
+                                type={showPassWord1 ? "text" : "password"}
+                                id="password"
+                                name="password"
+                                placeholder="Enter your Password"
+                                autoComplete="off"
+                                value={user.password}
+                                onChange={handleInput}
+                                required
+                                className="block w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm outline-none transition-colors"
+                            />
+                            <span
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 cursor-pointer"
+                                onClick={() => setShowPassword1(!showPassWord1)}
+                            >
+                                {showPassWord1 ? <ImEye size={18} /> : <ImEyeBlocked size={18} />}
+                            </span>
+                        </div>
+                    </div>
+                    <div>
+                        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                            Confirm Password
+                        </label>
+                        <div className="relative mt-1">
+                            <input
+                                type={showPassWord2 ? "text" : "password"}
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                placeholder="Confirm your Password"
+                                autoComplete="off"
+                                value={user.confirmPassword}
+                                onChange={handleInput}
+                                required
+                                className="block w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm outline-none transition-colors"
+                            />
+                            <span
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 cursor-pointer"
+                                onClick={() => setShowPassword2(!showPassWord2)}
+                            >
+                                {showPassWord2 ? <ImEye size={18} /> : <ImEyeBlocked size={18} />}
+                            </span>
+                        </div>
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                    >
+                        Register
+                    </button>
+
+                    <div className="relative flex items-center py-2">
+                        <div className="flex-grow border-t border-gray-300"></div>
+                        <span className="flex-shrink-0 mx-4 text-gray-400 text-sm">Or sign up with</span>
+                        <div className="flex-grow border-t border-gray-300"></div>
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                        <button
+                            type="button"
+                            onClick={() => { window.location.href = `${backendUrl}/api/auth/google`; }}
+                            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                        >
+                            <FcGoogle size={20} />
+                            <span>Sign Up With Google</span>
+                        </button>
+                    </div>
+
+                    <p className="mt-4 text-center text-sm text-gray-600">
+                        Already have an account?{" "}
+                        <NavLink to="/login" className="font-semibold text-indigo-600 hover:text-indigo-500 hover:underline transition-all">
+                            Log in
+                        </NavLink>
+                    </p>
+                </form>
+            </div>
         </section>
     );
-}
+};

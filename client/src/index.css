@@ -1,9 +1,34 @@
+@import "tailwindcss";
 
 .Toastify__toast--warning {
-    font-size: 1.4rem;
+    font-size: 1rem;
 }
 
 .Toastify__toast--success {
-    font-size: 1.4rem;
+    font-size: 1rem;
 }
 
+.slick-prev {
+  left: 10px !important;
+  z-index: 10;
+}
+.slick-next {
+  right: 10px !important;
+  z-index: 10;
+}
+
+.slick-prev, .slick-next {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+  border-radius: 50%;
+  width: 35px !important;
+  height: 35px !important;
+}
+
+.slick-prev:hover, .slick-next:hover {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+.slick-prev:before, .slick-next:before {
+  font-size: 18px !important;
+  opacity: 1 !important;
+}
