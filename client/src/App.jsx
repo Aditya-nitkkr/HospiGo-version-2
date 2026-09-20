@@ -5,7 +5,6 @@ import { SignUp } from "./pages/SignUp";
 import { About } from "./pages/About";
 import { Contact } from "./pages/Contact";
 import { Login } from "./pages/Login";
-import "./pages/signup.css";
 import { ErrorPage } from "./components/ErrorPage";
 import NearbyHospitals from "./pages/NearbyHospital";
 import { HospitalDetails } from "./pages/HospitalDetails";
@@ -20,7 +19,7 @@ const router = createBrowserRouter([
   //Public Route ->accessible to all the user
   {
     element: <PublicRoute />,
-    errorElement: <Navigate to="/" />,
+   errorElement: <ErrorPage />,
     children: [
       {
         path: "/signup",
@@ -31,13 +30,14 @@ const router = createBrowserRouter([
         element: <Login />,
       },
 
+
     ]
   },
 
   //Private Route ->accessible only to the authorized user
   {
     element: <PrivateRoute />,
-    errorElement: <Navigate to="/" />,
+    errorElement: <ErrorPage />,
     children: [
       {
         path: "/profile",
@@ -49,12 +49,8 @@ const router = createBrowserRouter([
   },
   {
     element: <HospitalRoute />,
-    errorElement: <Navigate to="/" />,
+    errorElement: <ErrorPage />,
     children: [
-      {
-        path: "/nearHospital",
-        element: <NearbyHospitals />
-      },
       {
         path: "/hospital/:id",
         element: <HospitalDetails />
@@ -83,6 +79,10 @@ const router = createBrowserRouter([
         path: "/contact",
         element: <Contact />
       },
+      {
+        path: "/nearHospital",
+        element: <NearbyHospitals />
+      },
 
     ],
   }
@@ -91,7 +91,13 @@ const router = createBrowserRouter([
 
 const App = () => {
   return (
-    <RouterProvider router={router}></RouterProvider>
+    <div className="min-h-screen  p-2 sm:p-4 lg:p-6 flex flex-col items-center justify-center">
+      <div className="w-full max-w-[1500px] bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-200 flex flex-col min-h-[calc(100vh-1rem)] sm:min-h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-3rem)]">
+
+        <RouterProvider router={router} />
+
+      </div>
+    </div>
   );
 }
 export default App;

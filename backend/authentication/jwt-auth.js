@@ -12,7 +12,7 @@ const generateToken = (user) => {
     secretKey,
     {
       expiresIn: "1d",
-    }
+    },
   );
 };
 
@@ -22,7 +22,6 @@ const requireAuth = (req, res, next) => {
     return res.status(401).json({ message: "No token, authorization denied" });
   try {
     const decodedUser = jwt.verify(token, secretKey);
-    // console.log(decodedUser);
     req.user = decodedUser;
     next();
   } catch (error) {

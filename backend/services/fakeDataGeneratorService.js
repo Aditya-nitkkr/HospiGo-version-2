@@ -1,7 +1,7 @@
 ﻿const Doctor = require("../models/doctorSchema");
 const DoctorSlotTemplate = require("../models/doctorSlotTemplateSchema");
-const HospitalAdmin = require("../models/hospitalAdmin");
 const { handleHashPassword } = require("../controllers/bcryptAuth");
+const User = require("../models/userSchema");
 
 const SPECIALTIES = [
   "Cardiology",
@@ -13,7 +13,6 @@ const SPECIALTIES = [
 
 const FIRST_NAMES = ["Rahul", "Priya", "Anjali", "Vikram", "Sneha"];
 
-// Each time slot now carries its own default capacity, not a 1:1 document per booking
 const TIME_SLOTS_WITH_CAPACITY = [
   { time: "09:00 AM", defaultCapacity: 20 },
   { time: "10:30 AM", defaultCapacity: 10 },
@@ -29,7 +28,6 @@ function slugify(name) {
 }
 
 const generateFakeDoctorsAndAdmin = async (hospitalId, hospitalName) => {
-  // Create 3-5 fake doctors
   const doctorCount = 3 + Math.floor(Math.random() * 3);
   const doctors = [];
   for (let i = 0; i < doctorCount; i++) {
@@ -52,17 +50,15 @@ const generateFakeDoctorsAndAdmin = async (hospitalId, hospitalName) => {
 
   const defaultPassword = "hospital123";
   const hashedPassword = await handleHashPassword(defaultPassword);
-
-  // creating the hospital admin at the time of hospital creation
-  await HospitalAdmin.create({
-    hospitalId,
+  const newAdminUser = await User.create({
+    username: hospitalName,
     email: `${slugify(hospitalName)}@demo.com`,
     password: hashedPassword,
+    role: "admin",
+    hospitalId: hospitalId,
   });
 
-  console.log(
-    ` Seeded ${doctors.length} doctors,  and admin login for "${hospitalName}"`,
-  );
+  return { adminUserId: newAdminUser._id };
 };
 
 module.exports = {

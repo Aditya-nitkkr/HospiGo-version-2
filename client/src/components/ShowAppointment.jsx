@@ -1,86 +1,93 @@
 import { useState } from "react";
-import axios from "axios";
-
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+import { FiCalendar, FiClock, FiChevronRight, FiUser } from "react-icons/fi";
+import { HospitalAppointmentModal } from "../UI/HospitalAppointmentModal";
 
 export const ShowAppointment = ({ patient }) => {
-    const { firstName, middleName, lastName, mobile, email, address, age, gender, appointmentDate, dateOfBirth, selectSlot, status } = patient;
+    if (!patient) return null;
 
-    const [statusUpdated, setStatusUpdated] = useState(status || "Pending");
-    const isDisabled = statusUpdated === "Accepted" || statusUpdated === "Rejected";
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [currentStatus, setCurrentStatus] = useState(patient.status || "Pending");
 
+    const {
+        _id,
+        firstName,
+        middleName,
+        lastName,
+        age,
+        gender,
+        appointmentDate,
+        selectSlot,
+        relation
+    } = patient;
 
+    const fullName = `${firstName || ""} ${middleName || ""} ${lastName || ""}`.trim();
 
-    const handleAcceptance = async () => {
-        try {
-            await axios.put(`${backendUrl}/api/appointments/admin/update-status/${patient._id}`, {
-                status: "Accepted"
-            });
-            setStatusUpdated("Accepted");
-        } catch (error) {
-            console.error("Failed to update status:", error);
+    const getStatusBadgeStyle = (status) => {
+        switch ((status || "").toLowerCase()) {
+            case "accepted":
+                return "bg-emerald-50 text-emerald-700 border-emerald-200";
+            case "rejected":
+                return "bg-red-50 text-red-700 border-red-200";
+            default:
+                return "bg-amber-50 text-amber-700 border-amber-200";
         }
     };
-
-    const handleRejection = async () => {
-        try {
-            await axios.put(`${backendUrl}/api/appointments/admin/update-status/${patient._id}`, {
-                status: "Rejected"
-            });
-            setStatusUpdated("Rejected");
-        } catch (error) {
-            console.error("Failed to update status:", error);
-        }
-    };
-
-    const handleRevertBtn = async () => {
-        try {
-            await axios.put(`${backendUrl}/api/appointments/admin/update-status/${patient._id}`, {
-                status: "Pending"
-            });
-            setStatusUpdated("Pending");
-        } catch (error) {
-            console.error("Failed to revert status:", error);
-        }
-    };
-
-
 
     return (
-        <li className="profile-list" key={patient._id}>
-            <div className="patient-left-content">
-                <p className={`patient-status ${statusUpdated.toLowerCase()}`}>{statusUpdated}</p>
-                <div className="patient-left-content-div">
-                    <figure className="profile-border">
-                        <img src="/profile-default.png" className="profile-default-img" alt="profile-default-image" width="50%" />
-                    </figure>
-                    <h2 className="patient-name">{firstName} {middleName} {lastName}</h2>
+        <>
+            <div
+                onClick={() => setIsModalOpen(true)}
+                className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all duration-200 cursor-pointer flex flex-col justify-between group h-full"
+            >
+                <div>
+                    <div className="flex items-center justify-between mb-3">
+                        <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider border ${getStatusBadgeStyle(currentStatus)}`}>
+                            {currentStatus}
+                        </span>
+                        <span className="text-[11px] font-mono text-gray-400">
+                            #{_id ? _id.slice(-6) : "N/A"}
+                        </span>
+                    </div>
+
+                    <div className="mb-4">
+                        <h4 className="text-base font-bold text-gray-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                            {fullName || "Unnamed Patient"}
+                        </h4>
+                        <div className="flex items-center gap-1.5 text-xs text-gray-500 mt-1">
+                            <FiUser className="text-indigo-500 shrink-0" />
+                            <span>
+                                {gender || "N/A"}, {age || "?"} yrs • {relation || "Self"}
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                {
-                    isDisabled && (
-                        <button type="button" className="revert-profile-btn" onClick={handleRevertBtn}> Revert</button>)
-                }
 
-            </div>
-            <div className="patient-right-content">
-                <h3 className="patient-details">Patient Details</h3>
-                <div className="patient-info">
-                    <p className="patient-info-item"><strong className="patient-info-label">Name:</strong> <span className="patient-info-value">{firstName}</span></p>
-                    <p className="patient-info-item"><strong className="patient-info-label">Contact:</strong> <span className="patient-info-value">{mobile}</span></p>
-                    <p className="patient-info-item"><strong className="patient-info-label">Email:</strong> <span className="patient-info-value">{email}</span></p>
-                    <p className="patient-info-item"><strong className="patient-info-label">Address:</strong> <span className="patient-info-value">{address}</span></p>
-                    <p className="patient-info-item"><strong className="patient-info-label">Age:</strong> <span className="patient-info-value">{age}</span></p>
-                    <p className="patient-info-item"><strong className="patient-info-label">Gender:</strong> <span className="patient-info-value">{gender}</span></p>
-                    <p className="patient-info-item"><strong className="patient-info-label">Appointment date:</strong> <span className="patient-info-value">{appointmentDate}</span></p>
-                    <p className="patient-info-item"><strong className="patient-info-label">Date of Birth:</strong> <span className="patient-info-value">{dateOfBirth}</span></p>
-                    <p className="patient-info-item"><strong className="patient-info-label">Slot Time:</strong> <span className="patient-info-value">{selectSlot}</span></p>
-
-                    <div className="acceptance-btn">
-                        <button type="button" className={`accept-profile-btn ${isDisabled ? "disable-btn" : ""}`} onClick={handleAcceptance} disabled={isDisabled}> Accept</button>
-                        <button type="button" className={`accept-profile-btn ${isDisabled ? "disable-btn" : ""}`} onClick={handleRejection} disabled={isDisabled}> Reject</button>
+                <div className="pt-3 border-t border-gray-50 flex items-center justify-between text-xs text-gray-600">
+                    <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-1">
+                            <FiCalendar className="text-indigo-500 shrink-0" />
+                            {appointmentDate || "N/A"}
+                        </span>
+                        <span className="flex items-center gap-1 font-semibold text-gray-800">
+                            <FiClock className="text-indigo-500 shrink-0" />
+                            {selectSlot || "N/A"}
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-1 text-indigo-600 font-medium group-hover:translate-x-0.5 transition-transform">
+                        <span>Review</span>
+                        <FiChevronRight className="text-sm" />
                     </div>
                 </div>
             </div>
-        </li >
-    )
-}
+
+            {isModalOpen && (
+                <HospitalAppointmentModal
+                    patient={patient}
+                    status={currentStatus}
+                    onStatusChange={setCurrentStatus}
+                    onClose={() => setIsModalOpen(false)}
+                />
+            )}
+        </>
+    );
+};

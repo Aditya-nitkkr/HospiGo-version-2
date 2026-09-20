@@ -1,5 +1,6 @@
 import axios from "axios";
 import { createContext, useContext, useState, useEffect } from "react";
+import { toast } from "react-toastify";
 
 const AuthContext = createContext();
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -8,8 +9,8 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRegister, setUserRegistered] = useState(null);
-  const [hospitalAppointments, setHospitalAppointments] = useState(null);
-  const [userAppointment, setUserAppointment] = useState(null);
+  const [hospitalAppointments, setHospitalAppointments] = useState([]);
+  const [userAppointment, setUserAppointment] = useState([]);
   const [userInput, setUserInput] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -31,7 +32,7 @@ export const AuthProvider = ({ children }) => {
   const fetchingAllAppointments = async () => {
     try {
       const res = await axios.get(`${backendUrl}/api/appointments/admin`, { withCredentials: true });
-      // console.log(typeof (res.data.appointments));
+      // console.log("response appointment", (res.data));
       if (res.status === 200) {
         setHospitalAppointments(res.data.appointments);
       }
@@ -55,6 +56,30 @@ export const AuthProvider = ({ children }) => {
 
   }
 
+  const deleteUserAppointment = async (appointmentId) => {
+    try {
+      const res = await axios.delete(
+        `${backendUrl}/api/user/appointment/${appointmentId}`,
+        { withCredentials: true }
+      );
+      console.log(appointmentId);
+
+      if (res.status === 200) {
+        setUserAppointment((prev) =>
+          prev.filter((apt) => apt._id !== appointmentId)
+        );
+        toast?.success?.("Appointment cancelled successfully.");
+        return true;
+      }
+    } catch (error) {
+      console.error("Error deleting appointment:", error);
+      toast?.error?.(
+        error.response?.data?.message || "Failed to cancel appointment."
+      );
+      return false;
+    }
+  };
+
 
   useEffect(() => {
     const initialize = async () => {
@@ -62,7 +87,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     };
     initialize();
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     // console.log(userRegister);
@@ -78,11 +103,11 @@ export const AuthProvider = ({ children }) => {
 
 
   const login = () => setIsAuthenticated(true);
-  const logout = () => setIsAuthenticated(false);
+  const logout = () =>setIsAuthenticated(false);
 
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, loading, setUserInput, userInput, login, logout, userRegister, setUserRegistered, hospitalAppointments, userAppointment }}>
+    <AuthContext.Provider value={{ deleteUserAppointment, isAuthenticated, loading, setUserInput, userInput, login, logout, userRegister, setUserRegistered, hospitalAppointments, userAppointment }}>
       {children}
     </AuthContext.Provider>
   );

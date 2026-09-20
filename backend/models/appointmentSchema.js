@@ -18,8 +18,7 @@ const appointmentSchema = mongoose.Schema({
 
   hospitalId: { type: mongoose.Schema.Types.ObjectId, ref: "Hospital", required: true },
   doctorId: { type: mongoose.Schema.Types.ObjectId, ref: "Doctor", required: true },
-  hospitalEmail: { type: String, required: true },
-
+  
   status: {
     type: String,
     enum: ["Pending", "Accepted", "Rejected"],

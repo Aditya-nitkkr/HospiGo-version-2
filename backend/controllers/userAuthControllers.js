@@ -1,18 +1,15 @@
 const User = require("../models/userSchema");
 const jwt = require("jsonwebtoken");
-const fs = require("fs");
-const secretKey = process.env.SECRET_KEY;
 const { generateToken } = require("../authentication/jwt-auth");
 const { handleHashPassword, comparePassword } = require("./bcryptAuth");
-const passport = require("passport");
-// const { FaS } = require("react-icons/fa6");
-const path = require("path");
+
 require("../authentication/google");
 
 const frontend_url = process.env.FRONTEND_URL;
 
 const handleUserSignup = async (req, res) => {
   const { username, email, password } = req.body;
+
   try {
     const user = await User.findOne({ email });
 
@@ -20,21 +17,7 @@ const handleUserSignup = async (req, res) => {
       return res.status(400).json({ message: "User already registered" });
     }
 
-    //? check if the user is admin or not
-
-    const hospitalPath = path.join(
-      __dirname,
-      "../hospital_data/rewari_hospitals_10.json",
-    );
-
-    // console.log(hospitalPath);
-    const hospitalData = JSON.parse(fs.readFileSync(hospitalPath));
-    const isHospital = hospitalData.some((h) => h.email === email);
-
-    // console.log(isHospital);
-    // console.log(hospitalData);
-
-    const assignRole = isHospital ? "admin" : "patient";
+    const assignRole = "patient";
 
     const hashedPassword = await handleHashPassword(password);
 
@@ -46,9 +29,8 @@ const handleUserSignup = async (req, res) => {
     });
 
     const token = generateToken(newUser);
-    // console.log(token);
 
-    res
+    return res
       .cookie("LoggedInToken", token, {
         httpOnly: true,
         secure: true,
@@ -65,8 +47,6 @@ const handleUserSignup = async (req, res) => {
         },
       });
   } catch (error) {
-    // res.status(401).send("Invalid credentials");
-    // console.log(error);
     next(error);
   }
 };
@@ -74,12 +54,9 @@ const handleUserSignup = async (req, res) => {
 const handleUserLogin = async (req, res) => {
   const { email, password } = req.body;
   try {
-    //if username is not given
     if (!email) {
       return res.status(400).json({ message: "Email is Required" });
     }
-
-    // if password is not given
     if (!password) {
       return res.status(400).json({ message: "Password is Required" });
     }
@@ -92,16 +69,13 @@ const handleUserLogin = async (req, res) => {
 
     const isMatch = await comparePassword(password, user.password);
 
-    //if password  is not matching
     if (!isMatch) {
       return res.status(401).json({ message: "INVALID CREDENTIAL" });
     }
 
-    //generating token
     const token = generateToken(user);
-    // console.log(token);
 
-    res
+    return res
       .cookie("LoggedInToken", token, {
         httpOnly: true,
         secure: true,
@@ -118,7 +92,6 @@ const handleUserLogin = async (req, res) => {
         },
       });
   } catch (error) {
-    // return res.status(500).json({ Error: error });
     next(error);
   }
 };
@@ -151,22 +124,23 @@ const handleAuth = (req, res) => {
 };
 
 const handleGoogleSetCookie = (req, res) => {
+  if (!frontend_url) {
+    return res.status(500).send("frontend_url not set");
+  }
+
   if (!req.user)
     return res.redirect(`${frontend_url}/login?error=missing-user`);
-  
+
   const token = generateToken(req.user);
 
   res.cookie("LoggedInToken", token, {
     httpOnly: true,
     secure: true,
     sameSite: "none",
+    path: "/",
   });
 
-  if (!frontend_url) {
-    return res.status(500).send("frontend_url not set");
-  }
-
-  res.redirect(`${frontend_url}/oauth-google`);
+  return res.redirect(`${frontend_url}/oauth-google`);
 };
 
 module.exports = {

@@ -12,7 +12,6 @@ passport.use(
       passReqToCallback: true,
     },
     function (request, accessToken, refreshToken, profile, done) {
-      // console.log(profile);
       const email = profile.emails?.[0]?.value;
       const username = profile.displayName;
       const role = "patient";

@@ -1,14 +1,13 @@
 const Appointment = require("../models/appointmentSchema");
 const { bookSlot } = require("../services/bookingService");
 const DailySlotStatus = require("../models/dailySlotStatusSchema");
+const Hospital = require("../models/hospitalData");
+const DoctorSlotTemplate = require("../models/doctorSlotTemplateSchema");
 
 // Function to make the appointment
 const handleSaveAppointment = async (req, res) => {
-  // console.log(req);
   const { appointmentDate, doctorId, hospitalId, selectSlot, mobile } =
     req.body;
-  // console.log("req body", req.body);
-
   try {
     const existingActive = await Appointment.findOne({
       doctorId,
@@ -23,20 +22,13 @@ const handleSaveAppointment = async (req, res) => {
           "You already have an active appointment with this doctor on this date",
       });
     }
-    //  Try to reserve capacity FIRST — this is the real source of truth,
-    // not a duplicate-check on the Appointment collection.
-    // it only check the capacity of the slot
     await bookSlot(doctorId, hospitalId, appointmentDate, selectSlot);
 
-    // handling the rollback by the same patient
     try {
-      //  Only if capacity was successfully reserved, create the appointment record
       const newAppointment = new Appointment(req.body);
       await newAppointment.save();
     } catch (saveError) {
-      // {11000} mongoDb duplicate key error
       if (saveError === 11000) {
-        // then rollback the book slot so that the slot is not wasted
         await DailySlotStatus.findOneAndUpdate(
           { doctorId, date: appointmentDate, time: selectSlot },
           { $inc: { bookedCount: -1 } },
@@ -54,7 +46,6 @@ const handleSaveAppointment = async (req, res) => {
       .json({ message: "Successfully made an appointment" });
   } catch (error) {
     console.error(error);
-    // bookSlot throws a specific message when the slot is full/blocked
     if (error.message.includes("full") || error.message.includes("blocked")) {
       return res.status(409).json({ message: error.message });
     }
@@ -64,16 +55,12 @@ const handleSaveAppointment = async (req, res) => {
 
 // Function to fetch all the appointments for the particular hospital
 const handleFetchAppointments = async (req, res) => {
-  const { hospitalId } = req.user;
-  // console.log(email);
-
+  const { id } = req.user;
   try {
-    const appointments = await Appointment.find({ hospitalId });
+    const appointments = await Appointment.find({ hospitalId: id });
     if (!appointments || appointments.length === 0) {
       return res.status(404).json({ message: "No appointments found" });
     }
-
-    // console.log(typeof appointments);
 
     return res
       .status(200)
@@ -89,22 +76,21 @@ const handleFetchAppointments = async (req, res) => {
 
 const handleAppointmentStatus = async (req, res) => {
   const { status } = req.body;
-  const { hospitalId } = req.user; // the logged-in admin's own hospital
+  const { id } = req.user; 
+  const { status_id } = req.params;
 
   try {
-    const appointment = await Appointment.findById(req.params.status_id);
+    const appointment = await Appointment.findById(status_id);
     if (!appointment) {
       return res.status(404).json({ message: "Appointment not found" });
     }
 
-    // Ownership check — prevents one hospital admin editing another hospital's appointment
-    if (appointment.hospitalId.toString() !== hospitalId.toString()) {
+    if (appointment.hospitalId.toString() !== id.toString()) {
       return res
         .status(403)
         .json({ message: "Not authorized to update this appointment" });
     }
 
-    // If the hospital rejects, free up the slot capacity that was reserved at booking time
     if (status === "Rejected" && appointment.status !== "Rejected") {
       await DailySlotStatus.findOneAndUpdate(
         {
@@ -124,8 +110,69 @@ const handleAppointmentStatus = async (req, res) => {
     res.status(500).json({ error: "Failed to update status" });
   }
 };
+
+const getHospitalEmail = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const hospital = await Hospital.findById(id);
+    return res.status(200).json(hospital.hospitalId);
+  } catch (error) {
+    console.log("error in fetching the hospital mail: ", error);
+    return res.status(404);
+  }
+};
+
+
+const getSlotsByDate = async (req, res) => {
+  try {
+    const { doctorId, hospitalId, date } = req.query;
+
+    if (!doctorId || !hospitalId || !date) {
+      return res
+        .status(400)
+        .json({ message: "doctorId, hospitalId, and date are required" });
+    }
+
+    const template = await DoctorSlotTemplate.findOne({ hospitalId, doctorId });
+    if (!template) {
+      return res.json({ slots: [] });
+    }
+
+    const dailyStatuses = await DailySlotStatus.find({
+      hospitalId,
+      doctorId,
+      date,
+    }).lean();
+
+    const statusMap = new Map(dailyStatuses.map((s) => [s.time.trim(), s]));
+
+    const slots = template.timeSlots.map((ts) => {
+      const status = statusMap.get(ts.time.trim());
+
+      if (status?.isBlocked) {
+        return { time: ts.time, capacity: 0 };
+      }
+
+      const totalCap = status?.capacityOverride ?? ts.defaultCapacity;
+      const booked = status?.bookedCount || 0;
+
+      return {
+        time: ts.time,
+        capacity: Math.max(0, totalCap - booked),
+      };
+    });
+
+    return res.json({ slots });
+  } catch (error) {
+    console.error("Error fetching slots:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   handleSaveAppointment,
   handleFetchAppointments,
   handleAppointmentStatus,
+  getHospitalEmail,
+  getSlotsByDate,
 };

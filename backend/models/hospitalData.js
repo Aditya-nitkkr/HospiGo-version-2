@@ -9,6 +9,11 @@ const hospitalSchema = new mongoose.Schema({
     type: { type: String, enum: ["Point"], default: "Point" },
     coordinates: { type: [Number], required: true }, // [lng, lat]
   },
+  hospitalId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
   isSeeded: { type: Boolean, default: false }, // true once doctors/admin are attached
   createdAt: { type: Date, default: Date.now },
 });
