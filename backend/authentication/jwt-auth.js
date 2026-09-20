@@ -22,7 +22,6 @@ const requireAuth = (req, res, next) => {
     return res.status(401).json({ message: "No token, authorization denied" });
   try {
     const decodedUser = jwt.verify(token, secretKey);
-    // console.log(decodedUser);
     req.user = decodedUser;
     next();
   } catch (error) {
@@ -36,10 +35,8 @@ const isAdmin = (req, res, next) => {
     return res.status(401).json({ message: "No token, authorization denied" });
   try {
     const decodedUser = jwt.verify(token, secretKey);
-    // console.log("role: ", decodedUser.role);
     if (decodedUser.role === "admin") {
       req.user = decodedUser;
-      // console.log("req user in token : ", req.user);
       next();
     } else {
       return res.status(403).json({ message: "Access denied. Not an admin." });

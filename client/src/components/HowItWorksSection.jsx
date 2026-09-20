@@ -12,7 +12,6 @@ export const HowItWorksSection = () => {
                 isAboutPage ? 'mb-[20rem]' : 'mb-20'
             }`}
         >
-            {/* Header Section */}
             <div className="text-center max-w-3xl mx-auto mb-16">
                 <h2 className="text-base text-indigo-600 font-semibold tracking-wide uppercase">
                     Process
@@ -25,7 +24,6 @@ export const HowItWorksSection = () => {
                 </p>
             </div>
 
-            {/* Steps Grid Layout */}
             <div>
                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
                     {StepData.map((currStep) => {

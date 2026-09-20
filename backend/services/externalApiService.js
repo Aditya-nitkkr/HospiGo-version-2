@@ -1,6 +1,4 @@
-﻿// services/externalLocationApi.js
-// import axios from "axios";
-const axios = require("axios");
+﻿const axios = require("axios");
 
 const fetchHospitalsNearby = async (lat, lon, radius = 10000) => {
   const options = {
@@ -35,12 +33,8 @@ const autocompleteLocation = async (query) => {
     headers: { accept: "application/json" },
   };
 
-  // console.log(process.env.LOCATIONIQ_KEY);
   const res = await axios.request(options);
   
-
-  // console.log(typeof res.data);
-  // console.log(res.data);
 
   return res.data;
 };

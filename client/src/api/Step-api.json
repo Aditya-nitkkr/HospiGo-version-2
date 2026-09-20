@@ -19,8 +19,8 @@
   },
   {
     "id": 4,
-   "StepNumber": "4",
-    "StepTitle": "Get Directions & Visit",
-    "StepDescription": "Use integrated Google Maps to navigate to the hospital easily. Need assistance? Our 24/7 support team is here to help."
+    "StepNumber": "4",
+    "StepTitle": "Track Status & Visit Hospital",
+    "StepDescription": "Monitor real-time approval status from your dashboard. Once confirmed, simply head to the hospital at your reserved slot time."
   }
 ]

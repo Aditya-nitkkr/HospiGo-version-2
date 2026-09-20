@@ -1,22 +1,24 @@
-﻿import img1 from "../assets/hospital-image-1.jpg";
-import img2 from "../assets/hospital-image-2.jpg";
-import img3 from "../assets/hospital-image-3.jpg";
-import img4 from "../assets/hospital-image-4.jpg";
-import img5 from "../assets/hospital-image-5.jpg";
-import img6 from "../assets/hospital-image-6.jpg";
+﻿// Array of root-relative URL paths to the public directory
+const HOSPITAL_IMAGES = [
+  "/Hospitals-images/hospital-image-1.jpg",
+  "/Hospitals-images/hospital-image-2.jpg",
+  "/Hospitals-images/hospital-image-3.jpg",
+  "/Hospitals-images/hospital-image-4.jpg",
+  "/Hospitals-images/hospital-image-5.jpg",
+  "/Hospitals-images/hospital-image-6.jpg",
+];
 
-const HOSPITAL_IMAGES = [img1, img2, img3, img4, img5, img6];
-  
 function hashStringToIndex(str, arrayLength) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     hash = (hash << 5) - hash + str.charCodeAt(i);
-    hash |= 0; // keep it a 32-bit int
+    hash |= 0; 
   }
   return Math.abs(hash) % arrayLength;
 }
 
 export function getHospitalImage(hospitalId) {
-  const index = hashStringToIndex(hospitalId, HOSPITAL_IMAGES.length);
+  if (!hospitalId) return HOSPITAL_IMAGES[0];
+  const index = hashStringToIndex(String(hospitalId), HOSPITAL_IMAGES.length);
   return HOSPITAL_IMAGES[index];
 }

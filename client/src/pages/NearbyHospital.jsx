@@ -1,16 +1,20 @@
 import { useState, useEffect } from "react";
 import { Hospital } from "./HospitalPage";
 import axios from "axios";
-import { useSearchParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const NearbyHospitals = () => {
-    const [searchParams] = useSearchParams();
+    // const [searchParams] = useSearchParams();
     const [hospitals, setHospitals] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const location = useLocation();
 
-    const lat = searchParams.get("lat");
-    const lng = searchParams.get("lng");
+    // const lat = searchParams.get("lat");
+    // const lng = searchParams.get("lng");
+
+    const lat = location.state?.lat;
+    const lng = location.state?.lng;
 
     useEffect(() => {
         if (!lat || !lng) {
@@ -59,7 +63,7 @@ const NearbyHospitals = () => {
     return (
         <section className="bg-gray-50 min-h-screen py-12 lg:py-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                
+
                 {/* Page Header */}
                 <div className="mb-10 text-center sm:text-left border-b border-gray-200 pb-6">
                     <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
@@ -85,7 +89,7 @@ const NearbyHospitals = () => {
                         ))}
                     </ul>
                 )}
-                
+
             </div>
         </section>
     );

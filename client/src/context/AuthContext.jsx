@@ -1,5 +1,6 @@
 import axios from "axios";
 import { createContext, useContext, useState, useEffect } from "react";
+import { toast } from "react-toastify";
 
 const AuthContext = createContext();
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -55,6 +56,30 @@ export const AuthProvider = ({ children }) => {
 
   }
 
+  const deleteUserAppointment = async (appointmentId) => {
+    try {
+      const res = await axios.delete(
+        `${backendUrl}/api/user/appointment/${appointmentId}`,
+        { withCredentials: true }
+      );
+      console.log(appointmentId);
+
+      if (res.status === 200) {
+        setUserAppointment((prev) =>
+          prev.filter((apt) => apt._id !== appointmentId)
+        );
+        toast?.success?.("Appointment cancelled successfully.");
+        return true;
+      }
+    } catch (error) {
+      console.error("Error deleting appointment:", error);
+      toast?.error?.(
+        error.response?.data?.message || "Failed to cancel appointment."
+      );
+      return false;
+    }
+  };
+
 
   useEffect(() => {
     const initialize = async () => {
@@ -82,7 +107,7 @@ export const AuthProvider = ({ children }) => {
 
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, loading, setUserInput, userInput, login, logout, userRegister, setUserRegistered, hospitalAppointments, userAppointment }}>
+    <AuthContext.Provider value={{ deleteUserAppointment, isAuthenticated, loading, setUserInput, userInput, login, logout, userRegister, setUserRegistered, hospitalAppointments, userAppointment }}>
       {children}
     </AuthContext.Provider>
   );

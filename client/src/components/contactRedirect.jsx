@@ -6,10 +6,8 @@ export const ContactRedirect = () => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10 -mt-10 mb-8">
             <div className="bg-gradient-to-r from-indigo-600 to-indigo-800 rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row items-center justify-between p-6 md:p-8 border border-indigo-500/30">
                 
-                {/* Left Section: Image & Text */}
                 <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 text-center sm:text-left">
                     
-                    {/* Image Wrapper */}
                     <figure className="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 bg-white/10 rounded-full p-3 backdrop-blur-sm border border-white/20 shadow-inner">
                         <img 
                             src="contact-image.png" 
@@ -18,7 +16,6 @@ export const ContactRedirect = () => {
                         />
                     </figure>
                     
-                    {/* Text Content */}
                     <div>
                         <h2 className="text-2xl sm:text-3xl font-extrabold text-white capitalize tracking-tight">
                             Get in touch with us
@@ -29,7 +26,6 @@ export const ContactRedirect = () => {
                     </div>
                 </div>
 
-                {/* Right Section: CTA Button */}
                 <div className="mt-6 md:mt-0 flex-shrink-0">
                     <NavLink to="/contact">
                         <button 
