@@ -31,7 +31,8 @@ export const OAuthSuccess = () => {
 
 
                     login();
-                    navigate("/");
+                    // navigate("/");
+                    window.location.href = "/";
                     // console.log("data", res.data.user);
                 } else {
                     navigate("/login");

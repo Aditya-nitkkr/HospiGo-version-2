@@ -10,6 +10,7 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
 export const Header = () => {
     const { isAuthenticated, logout } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
+    // const navigate  
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);
@@ -31,6 +32,7 @@ export const Header = () => {
                 theme: "light",
             });
             logout();
+            
         } catch (err) {
             console.error("Logout failed:", err);
         }

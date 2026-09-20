@@ -124,6 +124,10 @@ const handleAuth = (req, res) => {
 };
 
 const handleGoogleSetCookie = (req, res) => {
+  if (!frontend_url) {
+    return res.status(500).send("frontend_url not set");
+  }
+
   if (!req.user)
     return res.redirect(`${frontend_url}/login?error=missing-user`);
 
@@ -133,11 +137,8 @@ const handleGoogleSetCookie = (req, res) => {
     httpOnly: true,
     secure: true,
     sameSite: "none",
+    path: "/",
   });
-
-  if (!frontend_url) {
-    return res.status(500).send("frontend_url not set");
-  }
 
   return res.redirect(`${frontend_url}/oauth-google`);
 };
